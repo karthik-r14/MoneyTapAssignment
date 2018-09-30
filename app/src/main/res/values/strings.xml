@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MoneyTap</string>
+    <string name="search_button_text">Search</string>
+    <string name="Edit_text_hint_msg">Enter some text to search</string>
+</resources>
