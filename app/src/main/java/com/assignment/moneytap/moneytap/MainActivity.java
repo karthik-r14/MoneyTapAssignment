@@ -1,9 +1,11 @@
 package com.assignment.moneytap.moneytap;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -27,6 +29,7 @@ import static android.view.View.VISIBLE;
 
 public class MainActivity extends AppCompatActivity {
     private static final String JSON_URL = "https://en.wikipedia.org//w/api.php?action=query&format=json&prop=pageimages%7Cpageterms&generator=prefixsearch&redirects=1&formatversion=2&piprop=thumbnail&pithumbsize=50&pilimit=10&wbptterms=description&gpssearch=";
+    public static final String PAGEID = "pageid";
 
     private ListView searchResultsListView;
     private EditText searchEditText;
@@ -42,6 +45,15 @@ public class MainActivity extends AppCompatActivity {
         searchEditText = findViewById(R.id.search_edit_text);
         searchResultsListView = findViewById(R.id.results_listview);
         progressBar = findViewById(R.id.progress_bar);
+
+        searchResultsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(MainActivity.this, PageDetailActivity.class);
+                intent.putExtra(PAGEID, personsList.get(i).pagesid);
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -81,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                                     Person person = new Person(personObject.getString("pageid").toString(),
                                             personObject.getString("title").toString(),
                                             personObject.getJSONObject("thumbnail").getString("source").toString(),
-                                    personObject.getJSONObject("terms").getJSONArray("description").toString());
+                                            personObject.getJSONObject("terms").getJSONArray("description").toString());
 
                                     personsList.add(person);
                                 }
@@ -90,10 +102,10 @@ public class MainActivity extends AppCompatActivity {
 //                                        "\n page id : " + person.getPagesid() + "\n Image url : " + person.getImageUrl() + "\n Description : " + person.getDescription(), Toast.LENGTH_LONG).show();
                             }
 
-                            for (Person person : personsList) {
-                                Log.i("Tag", "person details");
-                                Log.i("TAG", person.getTitle() + "\n" + person.getPagesid() + "\n" + person.getDescription());
-                            }
+//                            for (Person person : personsList) {
+//                                Log.i("Tag", "person details");
+//                                Log.i("TAG", person.getTitle() + "\n" + person.getPagesid() + "\n" + person.getDescription());
+//                            }
 
                             CustomAdapter adapter = new CustomAdapter(getApplicationContext(), personsList);
                             searchResultsListView.setAdapter(adapter);
