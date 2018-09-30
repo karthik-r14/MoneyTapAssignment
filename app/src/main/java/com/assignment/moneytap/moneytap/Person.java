@@ -1,20 +1,20 @@
 package com.assignment.moneytap.moneytap;
 
 public class Person {
-    String pagesid;
+    String pageId;
     String title;
     String imageUrl;
     String description;
 
     public Person(String pagesid, String title, String imageUrl, String description) {
-        this.pagesid = pagesid;
+        this.pageId = pagesid;
         this.title = title;
         this.imageUrl = imageUrl;
         this.description = description;
     }
 
-    public String getPagesid() {
-        return pagesid;
+    public String getPageId() {
+        return pageId;
     }
 
     public String getTitle() {

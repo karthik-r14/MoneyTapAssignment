@@ -14,7 +14,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-class CustomAdapter extends ArrayAdapter{
+class CustomAdapter extends ArrayAdapter {
+    public static final String IMAGE_NOT_FOUND_URL = "https://upload.wikimedia.org/wikipedia/commons/2/26/512pxIcon-sunset_photo_not_found.png";
     private ArrayList<Person> personsList;
 
     public CustomAdapter(@NonNull Context context, ArrayList<Person> personsList) {
@@ -32,9 +33,17 @@ class CustomAdapter extends ArrayAdapter{
         TextView title = row.findViewById(R.id.title);
         TextView description = row.findViewById(R.id.description);
 
-        Picasso.with(getContext())
-                .load(personsList.get(position).getImageUrl())
-                .into(personImage);
+        String imageUrl = personsList.get(position).getImageUrl();
+
+        if (imageUrl == null) {
+            Picasso.with(getContext())
+                    .load(IMAGE_NOT_FOUND_URL)
+                    .into(personImage);
+        } else {
+            Picasso.with(getContext())
+                    .load(imageUrl)
+                    .into(personImage);
+        }
 
         title.setText(personsList.get(position).getTitle());
         description.setText(personsList.get(position).getDescription());

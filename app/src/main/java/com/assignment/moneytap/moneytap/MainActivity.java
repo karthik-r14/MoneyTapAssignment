@@ -1,6 +1,8 @@
 package com.assignment.moneytap.moneytap;
 
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,9 +51,13 @@ public class MainActivity extends AppCompatActivity {
         searchResultsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(MainActivity.this, PageDetailActivity.class);
-                intent.putExtra(PAGEID, personsList.get(i).pagesid);
-                startActivity(intent);
+                if (connectivityAvailable()) {
+                    Intent intent = new Intent(MainActivity.this, PageDetailActivity.class);
+                    intent.putExtra(PAGEID, personsList.get(i).getPageId());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.no_internet_msg, Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -59,11 +65,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void onSearchButtonClick(View view) {
         String searchString = searchEditText.getText().toString();
-        if (searchString.trim().isEmpty()) {
-            Toast.makeText(getApplicationContext(), R.string.empty_string_msg, Toast.LENGTH_LONG).show();
+        if (connectivityAvailable()) {
+            if (searchString.trim().isEmpty()) {
+                Toast.makeText(getApplicationContext(), R.string.empty_string_msg, Toast.LENGTH_LONG).show();
+            } else {
+                progressBar.setVisibility(VISIBLE);
+                loadData(searchString);
+            }
         } else {
-            progressBar.setVisibility(VISIBLE);
-            loadData(searchString);
+            Toast.makeText(getApplicationContext(), R.string.no_internet_msg, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -78,38 +88,30 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             JSONObject obj = new JSONObject(response);
-//                            Toast.makeText(getApplicationContext(), "Response : " + response, Toast.LENGTH_SHORT).show();
                             JSONArray pagesArray = obj.getJSONObject("query").getJSONArray("pages");
-//                            Toast.makeText(getApplicationContext(), pagesArray.toString(), Toast.LENGTH_LONG).show();
+                            String title, pageId, description, imageUrl;
 
                             for (int i = 0; i < pagesArray.length(); i++) {
                                 JSONObject personObject = pagesArray.getJSONObject(i);
 
-//                                Toast.makeText(getApplicationContext(), personObject.getJSONObject("thumbnail").toString(), Toast.LENGTH_LONG).show();
+                                if (!personObject.toString().contains("thumbnail")) {
+                                    pageId = personObject.getString("pageid").toString();
+                                    title = personObject.getString("title").toString();
+                                    imageUrl = null;
+                                    description = personObject.getJSONObject("terms").getJSONArray("description").toString();
 
-                                if (personObject.getJSONObject("thumbnail") == null) {
-                                    Person person = new Person(personObject.getString("pageid").toString(),
-                                            personObject.getString("title").toString(),
-                                            null,
-                                            personObject.getJSONObject("terms").getJSONArray("description").toString());
+                                    Person person = new Person(pageId, title, imageUrl, description);
                                     personsList.add(person);
                                 } else {
-                                    Person person = new Person(personObject.getString("pageid").toString(),
-                                            personObject.getString("title").toString(),
-                                            personObject.getJSONObject("thumbnail").getString("source").toString(),
-                                            personObject.getJSONObject("terms").getJSONArray("description").toString());
+                                    pageId = personObject.getString("pageid").toString();
+                                    title = personObject.getString("title").toString();
+                                    imageUrl = personObject.getJSONObject("thumbnail").getString("source").toString();
+                                    description = personObject.getJSONObject("terms").getJSONArray("description").toString();
 
+                                    Person person = new Person(pageId, title, imageUrl, description);
                                     personsList.add(person);
                                 }
-
-//                                Toast.makeText(getApplicationContext(), "Person Title : " + person.getTitle() +
-//                                        "\n page id : " + person.getPagesid() + "\n Image url : " + person.getImageUrl() + "\n Description : " + person.getDescription(), Toast.LENGTH_LONG).show();
                             }
-
-//                            for (Person person : personsList) {
-//                                Log.i("Tag", "person details");
-//                                Log.i("TAG", person.getTitle() + "\n" + person.getPagesid() + "\n" + person.getDescription());
-//                            }
 
                             CustomAdapter adapter = new CustomAdapter(getApplicationContext(), personsList);
                             searchResultsListView.setAdapter(adapter);
@@ -117,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-//                            Toast.makeText(getApplicationContext(), "Hello", Toast.LENGTH_LONG).show();
                             CustomAdapter adapter = new CustomAdapter(getApplicationContext(), personsList);
                             searchResultsListView.setAdapter(adapter);
                             searchResultsListView.setVisibility(VISIBLE);
@@ -141,5 +142,11 @@ public class MainActivity extends AppCompatActivity {
         //adding the string request to request queue
         requestQueue.add(stringRequest);
 
+    }
+
+    public boolean connectivityAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

@@ -4,4 +4,5 @@
     <string name="Edit_text_hint_msg">Enter some text to search</string>
     <string name="empty_string_msg">Please type an item to search</string>
     <string name="main_activity_label">MoneyTap Assignment</string>
+    <string name="no_internet_msg">There is no internet</string>
 </resources>
