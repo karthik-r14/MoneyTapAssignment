@@ -2,4 +2,6 @@
     <string name="app_name">MoneyTap</string>
     <string name="search_button_text">Search</string>
     <string name="Edit_text_hint_msg">Enter some text to search</string>
+    <string name="empty_string_msg">Please type an item to search</string>
+    <string name="main_activity_label">MoneyTap Assignment</string>
 </resources>

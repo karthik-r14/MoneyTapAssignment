@@ -59,8 +59,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void onSearchButtonClick(View view) {
         String searchString = searchEditText.getText().toString();
-        progressBar.setVisibility(VISIBLE);
-        loadData(searchString);
+        if (searchString.trim().isEmpty()) {
+            Toast.makeText(getApplicationContext(), R.string.empty_string_msg, Toast.LENGTH_LONG).show();
+        } else {
+            progressBar.setVisibility(VISIBLE);
+            loadData(searchString);
+        }
     }
 
     private void loadData(String searchString) {
@@ -81,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                             for (int i = 0; i < pagesArray.length(); i++) {
                                 JSONObject personObject = pagesArray.getJSONObject(i);
 
-                                Toast.makeText(getApplicationContext(), personObject.getJSONObject("thumbnail").toString(), Toast.LENGTH_LONG).show();
+//                                Toast.makeText(getApplicationContext(), personObject.getJSONObject("thumbnail").toString(), Toast.LENGTH_LONG).show();
 
                                 if (personObject.getJSONObject("thumbnail") == null) {
                                     Person person = new Person(personObject.getString("pageid").toString(),
@@ -113,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Toast.makeText(getApplicationContext(), "Hello", Toast.LENGTH_LONG).show();
+//                            Toast.makeText(getApplicationContext(), "Hello", Toast.LENGTH_LONG).show();
                             CustomAdapter adapter = new CustomAdapter(getApplicationContext(), personsList);
                             searchResultsListView.setAdapter(adapter);
                             searchResultsListView.setVisibility(VISIBLE);
